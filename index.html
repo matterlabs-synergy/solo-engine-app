@@ -31,11 +31,6 @@ margin-bottom: 24px; border: 1px solid #22293a;
 .prop-item { display: flex; align-items: center; font-size: 13px; color: #cbd5e1; margin-bottom: 8px; }
 .prop-item:last-child { margin-bottom: 0; }
 .prop-icon { margin-right: 10px; font-size: 16px; }
-.video-wrapper {
-width: 100%; border-radius: 10px; overflow: hidden; margin-bottom: 20px;
-border: 1px solid #2d354d; background: #171b26; display: flex;
-}
-video { width: 100%; height: auto; display: block; }
 .scope-alert {
 background: rgba(16, 185, 129, 0.06); border: 1px dashed rgba(16, 185, 129, 0.3);
 padding: 12px; border-radius: 8px; font-size: 12px; color: #a7f3d0; margin-bottom: 20px; line-height: 1.4;
@@ -72,7 +67,6 @@ border-top: 1px solid #22293a; border-right: 1px solid #22293a; border-bottom: 1
 margin-top: 14px; padding: 16px; background: #1c1917; border: 1px solid #78350f;
 color: #fef3c7; border-radius: 10px; font-size: 13px; display: none; line-height: 1.6;
 }
-/* NEW STRATEGY MARKETING BLOCKS */
 .marketing-section {
 max-width: 550px; width: 100%; background: #12141c; border: 1px solid #1f2433; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
 }
@@ -96,10 +90,6 @@ max-width: 550px; width: 100%; background: #12141c; border: 1px solid #1f2433; p
   <div class="prop-item"><span class="prop-icon">🎥</span> <strong>Caption Ready:</strong> Yields fast text-on-screen bullet ideas.</div>
 </div>
 
-<div class="video-wrapper">
-  <video src="https://w3schools.com" controls preload="metadata"></video>
-</div>
-
 <div class="scope-alert">
   🗣️ <strong>How it works:</strong> This engine processes the **spoken voice transcript** (what the creator says in the video) to rewrite retention paths. It does not parse or require user comment sections.
 </div>
@@ -118,7 +108,6 @@ max-width: 550px; width: 100%; background: #12141c; border: 1px solid #1f2433; p
 <div id="result" class="result-box"></div>
 </div>
 
-<!-- NEW SYSTEM LOGIC MARKETING SECTION -->
 <div class="marketing-section">
   <div class="marketing-title">🧠 Why the Spoken Transcript is Everything</div>
   <div class="card-grid">
@@ -159,7 +148,7 @@ copyBtn.style.display = "none";
 if(!urlInput) { alert("Please input content first!"); return; }
 
 if (urlInput.startsWith('http://') || urlInput.startsWith('https://') || urlInput.includes('youtube.com') || urlInput.includes('youtu.be')) {
-    const cleanExtractorUrl = "https://notegpt.io";
+    const cleanExtractorUrl = "https://lynote.ai";
     window.open(cleanExtractorUrl, '_blank');
     helperBox.innerHTML = `<strong>🔗 Extraction Tab Launched!</strong><br> Cloud servers are firewalled from reading YouTube links directly. We have launched an open-access transcript tab for you.<br><br>1. Paste your link into that open tab to load the text.<br>2. Copy the resulting text block.<br>3. Paste it back inside this app box and click <strong>Extract Data</strong>.`;
     helperBox.style.display = "block";
@@ -207,3 +196,11 @@ demoBtn.disabled = false;
 function copyToClipboard() {
 const resultText = document.getElementById("result").innerText;
 navigator.clipboard.writeText(resultText);
+const copyBtn = document.getElementById("copyBtn");
+copyBtn.innerText = "✅ Script Copied to Clipboard!";
+setTimeout(() => { copyBtn.innerText = "📋 Copy Monetization Script"; }, 2000);
+}
+</script>
+
+</body>
+</html>
