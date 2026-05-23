@@ -38,7 +38,7 @@ border-radius: 4px; display: none; white-space: pre-wrap; line-height: 1.6;
 
 <div class="container">
 <h1>⚡ Hooks & Highlights</h1>
-<p>Type 'test' to verify your cloud network, or paste a video URL.</p>
+<p>Type 'test' to verify your cloud network, or paste a real YouTube URL.</p>
 
 <input type="text" id="videoUrl" placeholder="Type test or paste link...">
 <button id="btn" onclick="generateSummary()">Extract Data</button>
@@ -57,21 +57,29 @@ if(!urlInput) { alert("Please input text first!"); return; }
 btn.disabled = true;
 btn.innerText = "Analyzing video via AI...";
 resultBox.style.display = "block";
-resultBox.innerHTML = "<span style='color:#a7f3d0;'>Connecting to cloud server matter...</span>";
+resultBox.innerHTML = "<span style='color:#a7f3d0;'>Processing cloud matter...</span>";
 
 try {
-// Netlify handles Node functions at this direct API directory route natively
 const response = await fetch('/api/summarize', {
 method: 'POST',
 headers: { 'Content-Type': 'application/json' },
 body: JSON.stringify({ url: urlInput })
 });
-const data = await response.json();
+
+const textData = await response.text();
+let data;
+try {
+data = JSON.parse(textData);
+} catch(e) {
+data = { result: textData };
+}
 
 if (data.error) {
 resultBox.innerHTML = `<span style='color:#f87171;'>Server Error: ${data.error}</span>`;
-} else {
+} else if (data.result) {
 resultBox.innerHTML = ` ${data.result}`;
+} else {
+resultBox.innerHTML = ` ${textData}`;
 }
 } catch (err) {
 resultBox.innerHTML = "<span style='color:#f87171;'>Cloud data transmission failed. Check repository architecture.</span>";
