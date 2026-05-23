@@ -23,12 +23,19 @@ width: 100%; height: 140px; padding: 14px; background: #1f2430; border: 1px soli
 border-radius: 8px; color: white; box-sizing: border-box; font-size: 15px; margin-bottom: 16px;
 resize: none; font-family: inherit;
 }
+.btn-group {
+display: flex; gap: 10px; margin-bottom: 12px;
+}
 button {
-width: 100%; padding: 14px; background: #6366f1; color: white; border: none;
-border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s;
+flex: 1; padding: 14px; background: #6366f1; color: white; border: none;
+border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; transition: background 0.2s;
 }
 button:hover { background: #4f46e5; }
 button:disabled { background: #4b5563; cursor: not-allowed; }
+.demo-btn { background: #374151; color: #f3f4f6; }
+.demo-btn:hover { background: #4b5563; }
+.copy-btn { background: #10b981; display: none; width: 100%; margin-bottom: 12px; }
+.copy-btn:hover { background: #059669; }
 .result-box {
 margin-top: 24px; padding: 16px; background: #1f2430; border-left: 4px solid #6366f1;
 border-radius: 4px; display: none; white-space: pre-wrap; line-height: 1.6;
@@ -37,7 +44,6 @@ border-radius: 4px; display: none; white-space: pre-wrap; line-height: 1.6;
 margin-top: 14px; padding: 14px; background: #1e1b4b; border: 1px solid #4338ca;
 color: #e0e7ff; border-radius: 8px; font-size: 13px; display: none; line-height: 1.5;
 }
-.helper-box a { color: #a5b4fc; font-weight: bold; text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -46,32 +52,41 @@ color: #e0e7ff; border-radius: 8px; font-size: 13px; display: none; line-height:
 <h1>⚡ Hooks & Highlights</h1>
 <p>Paste video script transcript text below, or insert a link to launch the text extractor.</p>
 
-<textarea id="videoUrl" placeholder="Paste script text here... (Or paste a YouTube link to open the helper)"></textarea>
-<button id="btn" onclick="generateSummary()">Extract Data</button>
+<textarea id="videoUrl" placeholder="Paste script text here... (Or click 'Try Live Demo' to test instantly)"></textarea>
+
+<div class="btn-group">
+  <button id="demoBtn" class="demo-btn" onclick="loadDemoData()">✨ Try Live Demo</button>
+  <button id="btn" onclick="generateSummary()">Extract Data</button>
+</div>
+
+<button id="copyBtn" class="copy-btn" onclick="copyToClipboard()">📋 Copy Output Data</button>
 
 <div id="helper" class="helper-box"></div>
 <div id="result" class="result-box"></div>
 </div>
 
 <script>
+function loadDemoData() {
+    const sampleTranscript = "So a lot of people ask me how to get started in real estate when they have absolutely no money. They think they need fifty thousand pounds down just to buy a single flat. But honestly, that is completely wrong. You can use rent-to-rent. You find a landlord who is tired of dealing with tenants, lease the property off them, and then sublet it as a house of multiple occupancy to make massive monthly cashflow.";
+    document.getElementById("videoUrl").value = sampleTranscript;
+}
+
 async function generateSummary() {
 const urlInput = document.getElementById("videoUrl").value.trim();
 const resultBox = document.getElementById("result");
 const helperBox = document.getElementById("helper");
 const btn = document.getElementById("btn");
+const copyBtn = document.getElementById("copyBtn");
 
 helperBox.style.display = "none";
 resultBox.style.display = "none";
+copyBtn.style.display = "none";
 
 if(!urlInput) { alert("Please input content first!"); return; }
 
-// Intercept YouTube links and launch a live, unblocked helper extractor engine 
 if (urlInput.startsWith('http://') || urlInput.startsWith('https://') || urlInput.includes('youtube.com') || urlInput.includes('youtu.be')) {
-    
-    // Automatically route to an active, reliable public transcription engine interface
-    const cleanExtractorUrl = "https://notegpt.io/youtube-transcript-generator";
+    const cleanExtractorUrl = "https://notegpt.io";
     window.open(cleanExtractorUrl, '_blank');
-    
     helperBox.innerHTML = `<strong>🔗 Extraction Tab Launched!</strong><br> Cloud servers are firewalled from reading YouTube links directly. We have launched an open-access transcript tab for you.<br><br>1. Paste your link into that open tab to load the text.<br>2. Copy the resulting text block.<br>3. Paste it back inside this app box and click <strong>Extract Data</strong>.`;
     helperBox.style.display = "block";
     return;
@@ -91,18 +106,15 @@ body: JSON.stringify({ url: urlInput })
 
 const textData = await response.text();
 let data;
-try {
-data = JSON.parse(textData);
-} catch(e) {
-data = { result: textData };
-}
+try { data = JSON.parse(textData); } catch(e) { data = { result: textData }; }
 
 if (data.error) {
 resultBox.innerHTML = `<span style='color:#f87171;'>Server Error: ${data.error}</span>`;
 } else if (data.result) {
-resultBox.innerHTML = ` ${data.result}`;
+resultBox.innerHTML = `${data.result}`;
+copyBtn.style.display = "block";
 } else {
-resultBox.innerHTML = ` ${textData}`;
+resultBox.innerHTML = `${textData}`;
 }
 } catch (err) {
 resultBox.innerHTML = "<span style='color:#f87171;'>Cloud data transmission failed. Check repository architecture.</span>";
@@ -110,6 +122,14 @@ resultBox.innerHTML = "<span style='color:#f87171;'>Cloud data transmission fail
 btn.disabled = false;
 btn.innerText = "Extract Data";
 }
+}
+
+function copyToClipboard() {
+const resultText = document.getElementById("result").innerText;
+navigator.clipboard.writeText(resultText);
+const copyBtn = document.getElementById("copyBtn");
+copyBtn.innerText = "✅ Copied to Clipboard!";
+setTimeout(() => { copyBtn.innerText = "📋 Copy Output Data"; }, 2000);
 }
 </script>
 
