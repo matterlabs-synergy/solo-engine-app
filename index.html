@@ -31,6 +31,10 @@ margin-bottom: 24px; border: 1px solid #22293a;
 .prop-item { display: flex; align-items: center; font-size: 13px; color: #cbd5e1; margin-bottom: 8px; }
 .prop-item:last-child { margin-bottom: 0; }
 .prop-icon { margin-right: 10px; font-size: 16px; }
+.scope-alert {
+background: rgba(16, 185, 129, 0.06); border: 1px dashed rgba(16, 185, 129, 0.3);
+padding: 12px; border-radius: 8px; font-size: 12px; color: #a7f3d0; margin-bottom: 20px; line-height: 1.4;
+}
 textarea {
 width: 100%; height: 130px; padding: 16px; background: #1c2130; border: 1px solid #2d354d;
 border-radius: 10px; color: white; box-sizing: border-box; font-size: 15px; margin-bottom: 16px;
@@ -76,6 +80,10 @@ color: #fef3c7; border-radius: 10px; font-size: 13px; display: none; line-height
   <div class="prop-item"><span class="prop-icon">💰</span> <strong>Agency Workflow:</strong> Script shorts for clients in seconds.</div>
   <div class="prop-item"><span class="prop-icon">📈</span> <strong>Algorithm Retention:</strong> Generates 3-second opening hooks.</div>
   <div class="prop-item"><span class="prop-icon">🎥</span> <strong>Caption Ready:</strong> Yields fast text-on-screen bullet ideas.</div>
+</div>
+
+<div class="scope-alert">
+  🗣️ <strong>How it works:</strong> This engine processes the **spoken voice transcript** (what the creator says in the video) to rewrite retention paths. It does not parse or require user comment sections.
 </div>
 
 <textarea id="videoUrl" placeholder="Paste a raw video transcript text here... (Or click 'Try Live Demo' below to see it work instantly)"></textarea>
