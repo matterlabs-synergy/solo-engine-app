@@ -57,14 +57,16 @@ export default async function handler(req, res) {
         try {
             let videoId = '';
             
-            // Clean parsing strategy for all variations of YouTube links
+            // Comprehensive parsing strategy for all variations of YouTube links
             if (url.includes('youtube.com/watch')) {
-                const urlParams = new URL(url).searchParams;
-                videoId = urlParams.get('v');
+                const parts = url.split('v=');
+                if (parts[1]) {
+                    videoId = parts[1].split('&')[0];
+                }
             } else if (url.includes('youtu.be/')) {
-                videoId = url.split('youtu.be/')[1]?.split('?')[0];
+                videoId = url.split('youtu.be/')[1].split('?')[0];
             } else if (url.includes('://youtube.com')) {
-                videoId = url.split('shorts/')[1]?.split('?')[0];
+                videoId = url.split('shorts/')[1].split('?')[0];
             }
 
             if (!videoId || videoId.length !== 11) {
@@ -72,7 +74,7 @@ export default async function handler(req, res) {
                 return res.end(JSON.stringify({ error: 'Could not resolve an 11-character YouTube video ID. Check link format.' }));
             }
 
-            // Using the open TubeText transcript parser endpoint to pull full text
+            // TubeText free proxy engine mirror implementation
             const mirrorResponse = await fetch(`https://vercel.app{videoId}`);
             
             if (!mirrorResponse.ok) {
@@ -87,7 +89,6 @@ export default async function handler(req, res) {
                 return res.end(JSON.stringify({ error: 'Could not extract raw text strings. Captions might be disabled on this video.' }));
             }
 
-            // Successfully map video text to your final AI processing payload
             finalPayloadText = scraperData.data.full_text;
 
         } catch (scrapeError) {
@@ -117,7 +118,7 @@ export default async function handler(req, res) {
         const data = await openAiResponse.json();
 
         if (openAiResponse.ok) {
-            const aiOutput = data.choices[0].message.content; // Explicit zero-index choices mapping logic
+            const aiOutput = data.choices[0].message.content; // Explicit zero-index choices list mapping fixed
             res.writeHead(200, { 'Content-Type': 'application/json' });
             return res.end(JSON.stringify({ result: aiOutput }));
         } else {
