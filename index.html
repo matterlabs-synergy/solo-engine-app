@@ -61,7 +61,7 @@ resultBox.innerHTML = "<span style='color:#a7f3d0;'>Processing cloud matter...</
 
 try {
 // Points securely directly to our renamed .mjs AWS module file route
-const response = await fetch('/api/summarize.mjs', {
+const response = await fetch('/api/summarize.js', {
 method: 'POST',
 headers: { 'Content-Type': 'application/json' },
 body: JSON.stringify({ url: urlInput })
