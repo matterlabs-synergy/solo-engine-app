@@ -48,45 +48,58 @@ export default async function handler(req, res) {
 
     let finalPayloadText = url;
 
-    // AUTOMATED TRANSCRIPT SCRAPER PIPELINE
+    // SECURE & FREE EXTRACTOR MIRROR ENGINE
     if (url.startsWith('http://') || url.startsWith('https://') || url.includes('youtube.com') || url.includes('youtu.be')) {
         try {
-            // Extract the 11-character video ID from the link structure
             let videoId = '';
-            if (url.includes('v=')) {
-                videoId = url.split('v=')[1]?.split('&')[0];
+            
+            // Clean parsing strategy for all variations of YouTube links
+            if (url.includes('youtube.com/watch')) {
+                const urlParams = new URL(url).searchParams;
+                videoId = urlParams.get('v');
             } else if (url.includes('youtu.be/')) {
                 videoId = url.split('youtu.be/')[1]?.split('?')[0];
-            } else if (url.includes('shorts/')) {
+            } else if (url.includes('://youtube.com')) {
                 videoId = url.split('shorts/')[1]?.split('?')[0];
             }
 
-            if (!videoId) {
+            if (!videoId || videoId.length !== 11) {
                 res.writeHead(400, { 'Content-Type': 'application/json' });
-                return res.end(JSON.stringify({ error: 'Could not extract a valid YouTube Video ID from the link.' }));
+                return res.end(JSON.stringify({ error: 'Could not resolve an 11-character YouTube video ID. Check link format.' }));
             }
 
-            // Fetch clean video transcript data strings via a dedicated web scraping engine
-            const scraperResponse = await fetch(`https://supadata.ai{videoId}`, {
-                method: 'GET',
-                headers: { 'Accept': 'application/json' }
-            });
-
-            const scraperData = await scraperResponse.json();
-
-            if (!scraperResponse.ok || !scraperData.content) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                return res.end(JSON.stringify({ error: 'Failsafe: Video does not have any captions or transcripts enabled.' }));
+            // Using a free open-source scraper mirror built to bypass Cloudflare and Google network walls
+            const mirrorResponse = await fetch(`https://youtubetranscript.com{videoId}`);
+            
+            if (!mirrorResponse.ok) {
+                res.writeHead(422, { 'Content-Type': 'application/json' });
+                return res.end(JSON.stringify({ error: 'The YouTube transcript mirror is currently rate-limited. Please try again or use another video.' }));
             }
 
-            finalPayloadText = scraperData.content;
+            const rawText = await mirrorResponse.text();
+            
+            // Extract text matching XML caption nodes securely without heavy library dependencies
+            const segmentMatches = rawText.match(/text="([^"]+)"/g);
+            if (!segmentMatches) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                return res.end(JSON.stringify({ error: 'Captions are fully disabled or age-restricted on this specific video.' }));
+            }
+
+            // Combine individual text fragments into a single cohesive transcript string block
+            finalPayloadText = segmentMatches
+                .map(match => match.replace('text="', '').replace('"', ''))
+                .join(' ')
+                .replace(/&amp;/g, '&')
+                .replace(/&quot;/g, '"')
+                .replace(/&#39;/g, "'");
+
         } catch (scrapeError) {
             res.writeHead(500, { 'Content-Type': 'application/json' });
-            return res.end(JSON.stringify({ error: `Transcript API proxy pipeline failed: ${scrapeError.message}` }));
+            return res.end(JSON.stringify({ error: `Transcript extraction pipeline failed: ${scrapeError.message}` }));
         }
     }
 
-    // OPENAI ANALYSIS LAYER
+    // OPENAI COMPLETION CALL
     try {
         const openAiResponse = await fetch('https://openai.com', {
             method: 'POST',
@@ -97,8 +110,8 @@ export default async function handler(req, res) {
             body: JSON.stringify({
                 model: "gpt-4o-mini",
                 messages: [
-                    { role: "system", content: "You are an AI that extracts viral hooks and key highlights from video transcripts. Return clean, formatted text structure." },
-                    { role: "user", content: `Analyze this transcript text and output the top hook and main highlights:\n\n${finalPayloadText}` }
+                    { role: "system", content: "You are an expert AI video content strategist. Extract the most viral hooks and compile structured point-by-point highlights from the video transcript." },
+                    { role: "user", content: `Process this transcript text:\n\n${finalPayloadText}` }
                 ],
                 temperature: 0.7
             })
@@ -107,7 +120,7 @@ export default async function handler(req, res) {
         const data = await openAiResponse.json();
 
         if (openAiResponse.ok) {
-            const aiOutput = data.choices.message.content;
+            const aiOutput = data.choices[0].message.content; // Fixed standard OpenAI choices list accessor index mapping
             res.writeHead(200, { 'Content-Type': 'application/json' });
             return res.end(JSON.stringify({ result: aiOutput }));
         } else {
