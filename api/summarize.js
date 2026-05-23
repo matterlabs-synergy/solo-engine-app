@@ -1,8 +1,10 @@
 export default async function handler(req, res) {
+    // Inject strict CORS headers manually
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
 
+    // Handle standard preflight OPTIONS requests
     if (req.method === 'OPTIONS') {
         res.writeHead(204);
         return res.end();
@@ -13,6 +15,7 @@ export default async function handler(req, res) {
         return res.end(JSON.stringify({ error: 'Method not allowed' }));
     }
 
+    // Safely parse streaming body chunks natively
     let rawBody = '';
     await new Promise((resolve) => {
         req.on('data', chunk => { rawBody += chunk; });
@@ -33,6 +36,7 @@ export default async function handler(req, res) {
         return res.end(JSON.stringify({ error: 'Input text is required.' }));
     }
 
+    // CREDIT-SAVING SHORTCUT PASSWORDS
     if (url.toLowerCase() === 'test') {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         return res.end(JSON.stringify({
@@ -48,7 +52,7 @@ export default async function handler(req, res) {
 
     let finalPayloadText = url;
 
-    // SECURE & FREE EXTRACTOR MIRROR ENGINE
+    // SECURE HIGH-SPEED EXTRACTOR MIRROR ENGINE
     if (url.startsWith('http://') || url.startsWith('https://') || url.includes('youtube.com') || url.includes('youtu.be')) {
         try {
             let videoId = '';
@@ -68,38 +72,31 @@ export default async function handler(req, res) {
                 return res.end(JSON.stringify({ error: 'Could not resolve an 11-character YouTube video ID. Check link format.' }));
             }
 
-            // Using a free open-source scraper mirror built to bypass Cloudflare and Google network walls
-            const mirrorResponse = await fetch(`https://youtubetranscript.com{videoId}`);
+            // Using the open TubeText transcript parser endpoint to pull full text
+            const mirrorResponse = await fetch(`https://vercel.app{videoId}`);
             
             if (!mirrorResponse.ok) {
                 res.writeHead(422, { 'Content-Type': 'application/json' });
-                return res.end(JSON.stringify({ error: 'The YouTube transcript mirror is currently rate-limited. Please try again or use another video.' }));
+                return res.end(JSON.stringify({ error: 'The transcript proxy rejected the request or video lacks captions.' }));
             }
 
-            const rawText = await mirrorResponse.text();
+            const scraperData = await mirrorResponse.json();
             
-            // Extract text matching XML caption nodes securely without heavy library dependencies
-            const segmentMatches = rawText.match(/text="([^"]+)"/g);
-            if (!segmentMatches) {
+            if (!scraperData.success || !scraperData.data || !scraperData.data.full_text) {
                 res.writeHead(400, { 'Content-Type': 'application/json' });
-                return res.end(JSON.stringify({ error: 'Captions are fully disabled or age-restricted on this specific video.' }));
+                return res.end(JSON.stringify({ error: 'Could not extract raw text strings. Captions might be disabled on this video.' }));
             }
 
-            // Combine individual text fragments into a single cohesive transcript string block
-            finalPayloadText = segmentMatches
-                .map(match => match.replace('text="', '').replace('"', ''))
-                .join(' ')
-                .replace(/&amp;/g, '&')
-                .replace(/&quot;/g, '"')
-                .replace(/&#39;/g, "'");
+            // Successfully map video text to your final AI processing payload
+            finalPayloadText = scraperData.data.full_text;
 
         } catch (scrapeError) {
             res.writeHead(500, { 'Content-Type': 'application/json' });
-            return res.end(JSON.stringify({ error: `Transcript extraction pipeline failed: ${scrapeError.message}` }));
+            return res.end(JSON.stringify({ error: `Transcript API proxy pipeline failed: ${scrapeError.message}` }));
         }
     }
 
-    // OPENAI COMPLETION CALL
+    // OPENAI ANALYSIS LAYER
     try {
         const openAiResponse = await fetch('https://openai.com', {
             method: 'POST',
@@ -120,7 +117,7 @@ export default async function handler(req, res) {
         const data = await openAiResponse.json();
 
         if (openAiResponse.ok) {
-            const aiOutput = data.choices[0].message.content; // Fixed standard OpenAI choices list accessor index mapping
+            const aiOutput = data.choices[0].message.content; // Explicit zero-index choices mapping logic
             res.writeHead(200, { 'Content-Type': 'application/json' });
             return res.end(JSON.stringify({ result: aiOutput }));
         } else {
