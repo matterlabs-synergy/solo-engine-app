@@ -1,12 +1,10 @@
 import https from 'https';
 
 export default async function handler(req, res) {
-    // Inject strict CORS headers manually
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
 
-    // Handle standard preflight OPTIONS requests
     if (req.method === 'OPTIONS') {
         res.writeHead(204);
         return res.end();
@@ -17,7 +15,6 @@ export default async function handler(req, res) {
         return res.end(JSON.stringify({ error: 'Method not allowed' }));
     }
 
-    // Safely parse streaming body chunks natively
     let rawBody = '';
     await new Promise((resolve) => {
         req.on('data', chunk => { rawBody += chunk; });
@@ -38,7 +35,6 @@ export default async function handler(req, res) {
         return res.end(JSON.stringify({ error: 'Input text is required.' }));
     }
 
-    // CREDIT-SAVING SHORTCUT PASSWORDS
     if (url.toLowerCase() === 'test') {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         return res.end(JSON.stringify({
@@ -52,7 +48,6 @@ export default async function handler(req, res) {
         return res.end(JSON.stringify({ error: 'OpenAI API key missing in Vercel environmental variable settings.' }));
     }
 
-    // Prepare OpenAI API Payload Structure
     const apiData = JSON.stringify({
         model: "gpt-4o-mini",
         messages: [
@@ -62,10 +57,9 @@ export default async function handler(req, res) {
         temperature: 0.7
     });
 
-    // Execute External HTTPS IPv4 Request Loop to OpenAI
     return new Promise((resolve) => {
         const options = {
-            hostname: '://openai.com',
+            hostname: 'api.openai.com',
             port: 443,
             path: '/v1/chat/completions',
             method: 'POST',
