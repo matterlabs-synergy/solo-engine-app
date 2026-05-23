@@ -19,7 +19,7 @@ border: 1px solid #232834;
 h1 { font-size: 24px; margin-bottom: 8px; color: #6366f1; }
 p { color: #9ca3af; font-size: 14px; margin-bottom: 24px; }
 textarea {
-width: 100%; height: 120px; padding: 14px; background: #1f2430; border: 1px solid #374151;
+width: 100%; height: 140px; padding: 14px; background: #1f2430; border: 1px solid #374151;
 border-radius: 8px; color: white; box-sizing: border-box; font-size: 15px; margin-bottom: 16px;
 resize: none; font-family: inherit;
 }
@@ -33,17 +33,23 @@ button:disabled { background: #4b5563; cursor: not-allowed; }
 margin-top: 24px; padding: 16px; background: #1f2430; border-left: 4px solid #6366f1;
 border-radius: 4px; display: none; white-space: pre-wrap; line-height: 1.6;
 }
+.helper-box {
+margin-top: 14px; padding: 14px; background: #1e1b4b; border: 1px solid #4338ca;
+color: #e0e7ff; border-radius: 8px; font-size: 13px; display: none; line-height: 1.5;
+}
+.helper-box a { color: #818cf8; font-weight: bold; text-decoration: underline; }
 </style>
 </head>
 <body>
 
 <div class="container">
 <h1>⚡ Hooks & Highlights</h1>
-<p>Paste a YouTube video link, a shorts link, or raw transcript text below.</p>
+<p>Paste video script transcript text below, or insert a link to launch the text extractor.</p>
 
-<textarea id="videoUrl" placeholder="Paste your YouTube video link or text transcript here..."></textarea>
+<textarea id="videoUrl" placeholder="Paste script text here... (Or paste a YouTube link to open the helper)"></textarea>
 <button id="btn" onclick="generateSummary()">Extract Data</button>
 
+<div id="helper" class="helper-box"></div>
 <div id="result" class="result-box"></div>
 </div>
 
@@ -51,14 +57,44 @@ border-radius: 4px; display: none; white-space: pre-wrap; line-height: 1.6;
 async function generateSummary() {
 const urlInput = document.getElementById("videoUrl").value.trim();
 const resultBox = document.getElementById("result");
+const helperBox = document.getElementById("helper");
 const btn = document.getElementById("btn");
+
+helperBox.style.display = "none";
+resultBox.style.display = "none";
 
 if(!urlInput) { alert("Please input content first!"); return; }
 
+// If the user pastes a link, extract the video ID and point them to an unblocked reader engine
+if (urlInput.startsWith('http://') || urlInput.startsWith('https://') || urlInput.includes('youtube.com') || urlInput.includes('youtu.be')) {
+    let videoId = '';
+    try {
+        if (urlInput.includes('v=')) {
+            videoId = urlInput.split('v=')[1].split('&')[0];
+        } else if (urlInput.includes('youtu.be/')) {
+            videoId = urlInput.split('youtu.be/')[1].split('?')[0];
+        } else if (urlInput.includes('shorts/')) {
+            videoId = urlInput.split('shorts/')[1].split('?')[0];
+        }
+    } catch(e) {}
+
+    if (videoId && videoId.length === 11) {
+        const fetcherUrl = `https://youtube-transcript.com{videoId}`;
+        // Automatically launch the tool in a new tab for the user
+        window.open(fetcherUrl, '_blank');
+        
+        helperBox.innerHTML = `<strong>🔗 Extraction Tab Launched!</strong><br> Cloud servers are blocked from scraping YouTube directly. We have opened the video transcript for you in a new tab.<br><br>1. Copy the text from that tab.<br>2. Paste it back inside this box.<br>3. Click <strong>Extract Data</strong> again.`;
+        helperBox.style.display = "block";
+    } else {
+        alert("Invalid YouTube URL configuration. Please check your link format.");
+    }
+    return;
+}
+
 btn.disabled = true;
-btn.innerText = "Processing video transcript via AI...";
+btn.innerText = "Analyzing text via AI...";
 resultBox.style.display = "block";
-resultBox.innerHTML = "<span style='color:#a7f3d0;'>Downloading video timeline metadata...</span>";
+resultBox.innerHTML = "<span style='color:#a7f3d0;'>Processing script context...</span>";
 
 try {
 const response = await fetch('/api/summarize', {
