@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hooks & Highlights // AI Summarizer</title>
+<style>
+body {
+background-color: #0d0e12; color: #f3f4f6;
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+display: flex; justify-content: center; align-items: center;
+min-height: 100vh; margin: 0; padding: 20px;
+}
+.container {
+background: #161920; padding: 40px; border-radius: 16px;
+box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 500px; width: 100%;
+border: 1px solid #232834;
+}
+h1 { font-size: 24px; margin-bottom: 8px; color: #6366f1; }
+p { color: #9ca3af; font-size: 14px; margin-bottom: 24px; }
+input[type="text"] {
+width: 100%; padding: 14px; background: #1f2430; border: 1px solid #374151;
+border-radius: 8px; color: white; box-sizing: border-box; font-size: 16px; margin-bottom: 16px;
+}
+button {
+width: 100%; padding: 14px; background: #6366f1; color: white; border: none;
+border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s;
+}
+button:hover { background: #4f46e5; }
+button:disabled { background: #4b5563; cursor: not-allowed; }
+.result-box {
+margin-top: 24px; padding: 16px; background: #1f2430; border-left: 4px solid #6366f1;
+border-radius: 4px; display: none; white-space: pre-wrap; line-height: 1.6;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<h1>⚡ Hooks & Highlights</h1>
+<p>Type 'test' to verify your cloud network, or paste a video URL.</p>
+
+<input type="text" id="videoUrl" placeholder="Type test or paste link...">
+<button id="btn" onclick="generateSummary()">Extract Data</button>
+
+<div id="result" class="result-box"></div>
+</div>
+
+<script>
+async function generateSummary() {
+const urlInput = document.getElementById("videoUrl").value.trim();
+const resultBox = document.getElementById("result");
+const btn = document.getElementById("btn");
+
+if(!urlInput) { alert("Please input text first!"); return; }
+
+btn.disabled = true;
+btn.innerText = "Analyzing video via AI...";
+resultBox.style.display = "block";
+resultBox.innerHTML = "<span style='color:#a7f3d0;'>Connecting to cloud server matter...</span>";
+
+try {
+// Netlify handles Node functions at this direct API directory route natively
+const response = await fetch('/api/summarize', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ url: urlInput })
+});
+const data = await response.json();
+
+if (data.error) {
+resultBox.innerHTML = `<span style='color:#f87171;'>Server Error: ${data.error}</span>`;
+} else {
+resultBox.innerHTML = ` ${data.result}`;
+}
+} catch (err) {
+resultBox.innerHTML = "<span style='color:#f87171;'>Cloud data transmission failed. Check repository architecture.</span>";
+} finally {
+btn.disabled = false;
+btn.innerText = "Extract Data";
+}
+}
+</script>
+
+</body>
+</html>
