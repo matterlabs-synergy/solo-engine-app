@@ -8,13 +8,13 @@
 body {
 background-color: #0b0c10; color: #f3f4f6;
 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-display: flex; justify-content: center; align-items: center;
-min-height: 100vh; margin: 0; padding: 20px;
+display: flex; flex-direction: column; justify-content: center; align-items: center;
+min-height: 100vh; margin: 0; padding: 40px 20px;
 }
 .container {
 background: #12141c; padding: 40px; border-radius: 20px;
 box-shadow: 0 20px 50px rgba(0,0,0,0.6); max-width: 550px; width: 100%;
-border: 1px solid #1f2433;
+border: 1px solid #1f2433; margin-bottom: 30px;
 }
 .badge {
 background: rgba(99, 102, 241, 0.15); color: #818cf8;
@@ -31,6 +31,11 @@ margin-bottom: 24px; border: 1px solid #22293a;
 .prop-item { display: flex; align-items: center; font-size: 13px; color: #cbd5e1; margin-bottom: 8px; }
 .prop-item:last-child { margin-bottom: 0; }
 .prop-icon { margin-right: 10px; font-size: 16px; }
+.video-wrapper {
+width: 100%; border-radius: 10px; overflow: hidden; margin-bottom: 20px;
+border: 1px solid #2d354d; background: #171b26; display: flex;
+}
+video { width: 100%; height: auto; display: block; }
 .scope-alert {
 background: rgba(16, 185, 129, 0.06); border: 1px dashed rgba(16, 185, 129, 0.3);
 padding: 12px; border-radius: 8px; font-size: 12px; color: #a7f3d0; margin-bottom: 20px; line-height: 1.4;
@@ -67,6 +72,15 @@ border-top: 1px solid #22293a; border-right: 1px solid #22293a; border-bottom: 1
 margin-top: 14px; padding: 16px; background: #1c1917; border: 1px solid #78350f;
 color: #fef3c7; border-radius: 10px; font-size: 13px; display: none; line-height: 1.6;
 }
+/* NEW STRATEGY MARKETING BLOCKS */
+.marketing-section {
+max-width: 550px; width: 100%; background: #12141c; border: 1px solid #1f2433; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+.marketing-title { font-size: 18px; font-weight: bold; color: #ffffff; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.card-grid { display: flex; flex-direction: column; gap: 14px; }
+.m-card { background: #171b26; border: 1px solid #22293a; padding: 16px; border-radius: 10px; }
+.m-card h3 { margin: 0 0 6px 0; font-size: 14px; color: #818cf8; font-weight: bold; }
+.m-card p { margin: 0; font-size: 13px; color: #9ca3af; line-height: 1.5; }
 </style>
 </head>
 <body>
@@ -80,6 +94,10 @@ color: #fef3c7; border-radius: 10px; font-size: 13px; display: none; line-height
   <div class="prop-item"><span class="prop-icon">💰</span> <strong>Agency Workflow:</strong> Script shorts for clients in seconds.</div>
   <div class="prop-item"><span class="prop-icon">📈</span> <strong>Algorithm Retention:</strong> Generates 3-second opening hooks.</div>
   <div class="prop-item"><span class="prop-icon">🎥</span> <strong>Caption Ready:</strong> Yields fast text-on-screen bullet ideas.</div>
+</div>
+
+<div class="video-wrapper">
+  <video src="https://w3schools.com" controls preload="metadata"></video>
 </div>
 
 <div class="scope-alert">
@@ -98,6 +116,25 @@ color: #fef3c7; border-radius: 10px; font-size: 13px; display: none; line-height
 <div id="spinner" class="spinner"></div>
 <div id="helper" class="helper-box"></div>
 <div id="result" class="result-box"></div>
+</div>
+
+<!-- NEW SYSTEM LOGIC MARKETING SECTION -->
+<div class="marketing-section">
+  <div class="marketing-title">🧠 Why the Spoken Transcript is Everything</div>
+  <div class="card-grid">
+    <div class="m-card">
+      <h3>🤖 1. The Algorithm Reads the Transcript</h3>
+      <p>Platforms like TikTok and YouTube use automated AI to listen to every word spoken in a video. They use the words in the audio track to figure out what the video is about and who to show it to.</p>
+    </div>
+    <div class="m-card">
+      <h3>⏱️ 2. The Script Dictates Retention</h3>
+      <p>A user decides whether to stay or swipe away based on the words they hear in the first 3 seconds (the voice hook). If your hook is weak, the user swipes before your video can perform.</p>
+    </div>
+    <div class="m-card">
+      <h3>💬 3. Comments are Purely Reactive</h3>
+      <p>Comments are just a byproduct of a successful video. Your job as a creator and agency owner is to fix the delivery engine (the voice script), which in turn forces people to engage and leave comments later.</p>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -170,11 +207,3 @@ demoBtn.disabled = false;
 function copyToClipboard() {
 const resultText = document.getElementById("result").innerText;
 navigator.clipboard.writeText(resultText);
-const copyBtn = document.getElementById("copyBtn");
-copyBtn.innerText = "✅ Script Copied to Clipboard!";
-setTimeout(() => { copyBtn.innerText = "📋 Copy Monetization Script"; }, 2000);
-}
-</script>
-
-</body>
-</html>
