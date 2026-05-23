@@ -19,7 +19,7 @@ border: 1px solid #232834;
 h1 { font-size: 24px; margin-bottom: 8px; color: #6366f1; }
 p { color: #9ca3af; font-size: 14px; margin-bottom: 24px; }
 textarea {
-width: 100%; height: 160px; padding: 14px; background: #1f2430; border: 1px solid #374151;
+width: 100%; height: 120px; padding: 14px; background: #1f2430; border: 1px solid #374151;
 border-radius: 8px; color: white; box-sizing: border-box; font-size: 15px; margin-bottom: 16px;
 resize: none; font-family: inherit;
 }
@@ -33,28 +33,16 @@ button:disabled { background: #4b5563; cursor: not-allowed; }
 margin-top: 24px; padding: 16px; background: #1f2430; border-left: 4px solid #6366f1;
 border-radius: 4px; display: none; white-space: pre-wrap; line-height: 1.6;
 }
-.alert-box {
-margin-top: 12px; padding: 12px; background: #2a1b1b; border: 1px solid #f87171;
-color: #fca5a5; border-radius: 6px; font-size: 13px; display: none;
-}
 </style>
 </head>
 <body>
 
 <div class="container">
 <h1>⚡ Hooks & Highlights</h1>
-<p>Type 'test' to confirm your pipeline, or paste a video's script transcript text below.</p>
+<p>Paste a YouTube video link, a shorts link, or raw transcript text below.</p>
 
-<textarea id="videoUrl" placeholder="Paste video script text, descriptions, or type test here..."></textarea>
+<textarea id="videoUrl" placeholder="Paste your YouTube video link or text transcript here..."></textarea>
 <button id="btn" onclick="generateSummary()">Extract Data</button>
-
-<div id="urlAlert" class="alert-box">
-  <strong>⚠️ YouTube Links Blocked by Cloud Firewalls:</strong><br>
-  YouTube blocks automated cloud servers from scraping transcripts. Instead:<br>
-  1. Go to the YouTube video.<br>
-  2. Click <strong>... More</strong> > <strong>Show Transcript</strong>.<br>
-  3. Copy the text block and paste it directly here!
-</div>
 
 <div id="result" class="result-box"></div>
 </div>
@@ -63,25 +51,14 @@ color: #fca5a5; border-radius: 6px; font-size: 13px; display: none;
 async function generateSummary() {
 const urlInput = document.getElementById("videoUrl").value.trim();
 const resultBox = document.getElementById("result");
-const alertBox = document.getElementById("urlAlert");
 const btn = document.getElementById("btn");
-
-// Clear view states
-alertBox.style.display = "none";
-resultBox.style.display = "none";
 
 if(!urlInput) { alert("Please input content first!"); return; }
 
-// Intercept link pasting immediately on the client side
-if (urlInput.startsWith('http://') || urlInput.startsWith('https://') || urlInput.includes('youtube.com') || urlInput.includes('youtu.be')) {
-    alertBox.style.display = "block";
-    return;
-}
-
 btn.disabled = true;
-btn.innerText = "Analyzing text via AI...";
+btn.innerText = "Processing video transcript via AI...";
 resultBox.style.display = "block";
-resultBox.innerHTML = "<span style='color:#a7f3d0;'>Processing cloud matter...</span>";
+resultBox.innerHTML = "<span style='color:#a7f3d0;'>Downloading video timeline metadata...</span>";
 
 try {
 const response = await fetch('/api/summarize', {
