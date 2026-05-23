@@ -50,9 +50,24 @@ export default async function handler(req, res) {
         return res.end(JSON.stringify({ error: 'OpenAI API key missing in Vercel environmental variable settings.' }));
     }
 
+    // NEW PIPELINE: Automatically fetch the text transcript if a URL is provided
+    let finalPayloadText = url;
     if (url.startsWith('http://') || url.startsWith('https://')) {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
-        return res.end(JSON.stringify({ error: 'URL links are not supported yet. Please paste the raw script text.' }));
+        try {
+            // Call a secure microservice to extract raw text transcript strings from the video URL
+            const transcriptResponse = await fetch(`https://vercel.app{encodeURIComponent(url)}`);
+            const transcriptData = await transcriptResponse.json();
+            
+            if (!transcriptResponse.ok || !transcriptData.transcript) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                return res.end(JSON.stringify({ error: transcriptData.error || 'Failed to extract transcript from this YouTube video. Ensure it has captions enabled.' }));
+            }
+            
+            finalPayloadText = transcriptData.transcript;
+        } catch (transcriptError) {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            return res.end(JSON.stringify({ error: `Transcript extraction pipeline failed: ${transcriptError.message}` }));
+        }
     }
 
     // Process OpenAI call using native fetch engine
@@ -67,7 +82,7 @@ export default async function handler(req, res) {
                 model: "gpt-4o-mini",
                 messages: [
                     { role: "system", content: "You are an AI that extracts hooks and key highlights from video transcripts. Return clean, formatted text." },
-                    { role: "user", content: `Analyze this text and provide the top hook and main highlights:\n\n${url}` }
+                    { role: "user", content: `Analyze this text and provide the top hook and main highlights:\n\n${finalPayloadText}` }
                 ],
                 temperature: 0.7
             })
@@ -76,7 +91,7 @@ export default async function handler(req, res) {
         const data = await openAiResponse.json();
 
         if (openAiResponse.ok) {
-            const aiOutput = data.choices[0].message.content;
+            const aiOutput = data.choices.message.content;
             res.writeHead(200, { 'Content-Type': 'application/json' });
             return res.end(JSON.stringify({ result: aiOutput }));
         } else {
